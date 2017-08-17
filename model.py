@@ -6,11 +6,15 @@ import sklearn
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 
+# Lists to store CSV parsing results
 image_paths = []
 steering_angles = []
 
 data_path = '../P3_data/combined/'
+# Steering angle factor applied to side images
 side_correction = 0.15
+# Number of random alternations per input image.
+# Total number of training images would be (number_of_images * alternations_per_sample)
 alternations_per_sample = 4
 
 with open(data_path + 'driving_log.csv') as csvfile:
@@ -33,9 +37,11 @@ with open(data_path + 'driving_log.csv') as csvfile:
             filename = path.split('/')[-1]
             current_path = data_path + 'IMG/' + filename            
             image_paths.append(current_path)                		
-            
+
+# Shuffle and split input data into training/validation set - 80%/20%            
 image_paths_train, image_paths_test, steering_angles_train, steering_angles_test = train_test_split(image_paths, steering_angles, test_size=0.2)
 
+# Functions to alter input images
 def shadow(image_HSV, top_col, bottom_col, side, factor = 0.5):
     height, width, chanels = image_HSV.shape
         
@@ -55,6 +61,7 @@ def change_brightness(image_HSV, factor):
     image_HSV[:,:,2] = np.where(image_HSV[:,:,2] * factor > 255, 255, image_HSV[:,:,2] * factor)
     return image_HSV
 
+# prepocessing function for random images alternations & conversion to YUV
 def preprocess_image(image_path, angle):
     # read image
     image_BGR = cv2.imread(image_path)
@@ -87,7 +94,8 @@ def preprocess_image(image_path, angle):
     shift_image = vertical_shift(shadow_image_YUV, shift_factor)
     
     return shift_image, angle
-            
+
+# Generator to be used by Keras model
 def generator(X, y, batch_size=32):    
     num_samples = len(X)
     while 1: # Loop forever so the generator never terminates
@@ -110,18 +118,21 @@ def generator(X, y, batch_size=32):
 train_generator = generator(image_paths_train, steering_angles_train, batch_size=256)
 validation_generator = generator(image_paths_test, steering_angles_test, batch_size=256)
 
+# Creating CNN model similar to NVIDIA model
+# http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers.convolutional import Convolution2D
 
 model = Sequential()
 model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160,320,3)))
+# Cropping "sky" (top) and "car hood" (bottom)
 model.add(Cropping2D(cropping=((70,25),(0,0))))
-model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation="relu"))
-model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation="relu"))
-model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation="relu"))
-model.add(Convolution2D(64, 3, 3, activation="relu"))
-model.add(Convolution2D(64, 3, 3, activation="relu"))
+model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Convolution2D(64, 3, 3, activation='relu'))
+model.add(Convolution2D(64, 3, 3, activation='relu'))
 
 model.add(Flatten())
 model.add(Dense(1164, activation='relu'))
@@ -133,9 +144,11 @@ model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
 
-from keras.utils.visualize_util import plot
-plot(model, to_file='model.png', show_shapes=True)
+# generate model viszualization
+# from keras.utils.visualize_util import plot
+# plot(model, to_file='model.png', show_shapes=True)
 
+# Train model and save to model.h5
 model.fit_generator(train_generator,
             samples_per_epoch=len(image_paths_train) * alternations_per_sample, 
             validation_data=validation_generator,
