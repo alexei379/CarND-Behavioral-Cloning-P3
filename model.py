@@ -39,7 +39,8 @@ with open(data_path + 'driving_log.csv') as csvfile:
             image_paths.append(current_path)                		
 
 # Shuffle and split input data into training/validation set - 80%/20%            
-image_paths_train, image_paths_test, steering_angles_train, steering_angles_test = train_test_split(image_paths, steering_angles, test_size=0.2)
+image_paths_train, image_paths_test, steering_angles_train, steering_angles_test = \
+    train_test_split(image_paths, steering_angles, test_size=0.2)
 
 # Functions to alter input images
 def shadow(image_HSV, top_col, bottom_col, side, factor = 0.5):
@@ -84,9 +85,8 @@ def preprocess_image(image_path, angle):
     shadow_bottom = np.random.randint(320)
     shadow_image_HSV = shadow(bright_image_HSV, shadow_top, shadow_bottom, shadow_side, shadow_factor)
     
-    image_BGR = cv2.cvtColor(shadow_image_HSV, cv2.COLOR_HSV2BGR)
-    
     # convert to YUV
+    image_BGR = cv2.cvtColor(shadow_image_HSV, cv2.COLOR_HSV2BGR)
     shadow_image_YUV = cv2.cvtColor(image_BGR, cv2.COLOR_BGR2YUV)
     
     # vertical shift
@@ -123,17 +123,22 @@ validation_generator = generator(image_paths_test, steering_angles_test, batch_s
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers.convolutional import Convolution2D
+from keras.callbacks import CSVLogger
 
 model = Sequential()
+# Normalization
 model.add(Lambda(lambda x: x / 255.0 - 0.5, input_shape=(160,320,3)))
 # Cropping "sky" (top) and "car hood" (bottom)
 model.add(Cropping2D(cropping=((70,25),(0,0))))
+
+# Convolutional layers
 model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
 model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
 model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
 model.add(Convolution2D(64, 3, 3, activation='relu'))
 model.add(Convolution2D(64, 3, 3, activation='relu'))
 
+# Fully connected layers
 model.add(Flatten())
 model.add(Dense(1164, activation='relu'))
 model.add(Dropout(0.5))
@@ -142,17 +147,20 @@ model.add(Dense(50, activation='relu'))
 model.add(Dense(10, activation='relu'))
 model.add(Dense(1))
 
+# Mean Squared Error / Adam optimizer
 model.compile(loss='mse', optimizer='adam')
 
-# generate model viszualization
+# Generate model viszualization
 # from keras.utils.visualize_util import plot
 # plot(model, to_file='model.png', show_shapes=True)
+
+csv_logger = CSVLogger('training.log')
 
 # Train model and save to model.h5
 model.fit_generator(train_generator,
             samples_per_epoch=len(image_paths_train) * alternations_per_sample, 
             validation_data=validation_generator,
             nb_val_samples=len(image_paths_test) * alternations_per_sample,            
-            nb_epoch=5)
+            nb_epoch=5, callbacks=[csv_logger])
 
 model.save('model.h5')
