@@ -11,11 +11,17 @@ image_paths = []
 steering_angles = []
 
 data_path = '../P3_data/combined/'
+# keep 30% of the input data images
+input_data_drop_factor = 0.7
+
 # Steering angle factor applied to side images
 side_correction = 0.15
 # Number of random alternations per input image.
 # Total number of training images would be (number_of_images * alternations_per_sample)
-alternations_per_sample = 4
+alternations_per_sample = 5
+
+number_of_epoch = 10
+validation_size = 0.2
 
 with open(data_path + 'driving_log.csv') as csvfile:
     reader = csv.reader(csvfile)
@@ -40,7 +46,15 @@ with open(data_path + 'driving_log.csv') as csvfile:
 
 # Shuffle and split input data into training/validation set - 80%/20%            
 image_paths_train, image_paths_test, steering_angles_train, steering_angles_test = \
-    train_test_split(image_paths, steering_angles, test_size=0.2)
+    train_test_split(image_paths, steering_angles, test_size=validation_size)
+
+del_from_train = int(len(image_paths_train) * input_data_drop_factor)
+del_from_validation = int(len(image_paths_test) * input_data_drop_factor)
+
+del image_paths_train[-del_from_train:]
+del steering_angles_train[-del_from_train:]
+del image_paths_test[-del_from_validation:]
+del steering_angles_test[-del_from_validation:]    
 
 # Functions to alter input images
 def shadow(image_HSV, top_col, bottom_col, side, factor = 0.5):
@@ -135,6 +149,7 @@ model.add(Cropping2D(cropping=((70,25),(0,0))))
 model.add(Convolution2D(24, 5, 5, subsample=(2,2), activation='relu'))
 model.add(Convolution2D(36, 5, 5, subsample=(2,2), activation='relu'))
 model.add(Convolution2D(48, 5, 5, subsample=(2,2), activation='relu'))
+model.add(Dropout(0.5))
 model.add(Convolution2D(64, 3, 3, activation='relu'))
 model.add(Convolution2D(64, 3, 3, activation='relu'))
 
@@ -151,8 +166,8 @@ model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
 
 # Generate model viszualization
-# from keras.utils.visualize_util import plot
-# plot(model, to_file='model.png', show_shapes=True)
+from keras.utils.visualize_util import plot
+plot(model, to_file='model.png', show_shapes=True)
 
 csv_logger = CSVLogger('training.log')
 
@@ -161,6 +176,6 @@ model.fit_generator(train_generator,
             samples_per_epoch=len(image_paths_train) * alternations_per_sample, 
             validation_data=validation_generator,
             nb_val_samples=len(image_paths_test) * alternations_per_sample,            
-            nb_epoch=5, callbacks=[csv_logger])
+            nb_epoch=number_of_epoch, callbacks=[csv_logger])
 
 model.save('model.h5')
