@@ -5,7 +5,7 @@
 Overview
 ---
 In this project, I've built deep convolutional neural network to clone driving behavior. 
-[Project structure](https://github.com/alexei379/CarND-Behavioral-Cloning-P3) and [simultor](https://github.com/udacity/self-driving-car-sim) provided are provided by [Udacity - Self-Driving Car NanoDegree](http://www.udacity.com/drive).
+[Project structure](https://github.com/alexei379/CarND-Behavioral-Cloning-P3) and [simultor](https://github.com/udacity/self-driving-car-sim) are provided by [Udacity - Self-Driving Car NanoDegree](http://www.udacity.com/drive).
 
 The goals / steps of this project are the following:
 * Use the simulator to collect data of good driving behavior
@@ -64,7 +64,7 @@ The model.py file contains the code for training and saving the convolution neur
 
 #### 1. An appropriate model architecture has been employed
 
-My model implements architecture similar to [NVIDIA's CNN architecture](http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)
+My model architecture is similar to [NVIDIA's CNN architecture](http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf).
 
 My model consists of 5 convolutional layers and 3 fully connected layers (model.py lines 37-63). RELU used as activation fuction to introduce nonlinearity. The input image is split into YUV planes and passed to the network, where first layers perform normalization and cropping.
 
@@ -89,19 +89,17 @@ For details about how I created the training data, see the next section.
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to try a simple model to verify that all project parts work together as expected and then move on to experementing with a model described by NVIDIA.
+The overall strategy for deriving a model architecture was to try a simple model to verify that a pipline works as expected and then move on to experementing with a model described by NVIDIA.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+To verify that a pipline works I implemented a single "Flatten" layer model and used images provided by Udacity to train this model. After the training I verified that I can connect driving.py with the simulator to drive the car. The steering was far from ideal but the pipline was working. 
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
+After verifying that the pipline works, I moved on to implement the the NVIDIA's architecture. The trained model was able to drive around "Track 1", but had issues with couple of turns. To improve the driving behaviour I collected additional data by driving through these turns and doing "recovery" driving from the border to the center. Using this additional data I was able to train the model to drive around "Track 1".  
 
-To combat the overfitting, I modified the model so that ...
+I tried this trained model on "Track 2" and it was not able to control the car appropriately. I thought that alternating data from "Track 1" by shifting, adding shadows, changing the brightnes, and addind dropout layers will help to generalize model to drive around "Track 2" without collecting the data from "Track 2". The trained model was able to drive better on "Track 2", but it still was not enougth to drive safely. 
 
-Then I ... 
+I ended up collecting driving data from "Track 2" and repeating the same process with fixing couple of turns that were not working correctly.
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
-
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+At the end of the process, the vehicle is able to drive autonomously around both tracks without leaving the road.
 
 #### 2. Final Model Architecture
 
@@ -112,6 +110,10 @@ Here is a visualization of the architecture (note: visualizing the architecture 
 ![alt text][image1]
 
 #### 3. Creation of the Training Set & Training Process
+
+
+I ended up having a lot of training data so I used gerarator  (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model. 
+
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
