@@ -58,31 +58,31 @@ The model.py file contains the code for training and saving the convolution neur
 
 #### 1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+My model implements architecture similar to [NVIDIA's CNN architecture](http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf)
 
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
+My model consists of 5 convolutional layers and 3 fully connected layers (model.py lines 37-63). RELU used as activation fuction to introduce nonlinearity. The input image is split into YUV planes and passed to the network, where first layers perform normalization and cropping.
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+The model contains 2 dropout layers in order to reduce overfitting (model.py lines 152, 159). 
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 48-49). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 166).
 
 #### 4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
+Training data was chosen to keep the vehicle driving on the road. I used data provided by Udacity for the "Track 1" as a starting point. I extended it by recording extra data for going back and forth through turns that the model could not handle and recording "recovery" only going from the side of the road to the center. Unfortunately, using just data from "Track 1" even with multiple alternations was not sufficient to generalize to drive "Track 2" (Jungle) autonomously, so I ended up repeating the same procedure for it.
 
 For details about how I created the training data, see the next section. 
 
-###Model Architecture and Training Strategy
+### Model Architecture and Training Strategy
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+The overall strategy for deriving a model architecture was to try a simple model to verify that all project parts work together as expected and then move on to experementing with a model described by NVIDIA.
 
 My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
 
@@ -130,4 +130,4 @@ After the collection process, I had X number of data points. I then preprocessed
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually tuning the learning rate wasn't necessary.

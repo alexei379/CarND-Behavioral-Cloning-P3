@@ -166,8 +166,8 @@ model.add(Dense(1))
 model.compile(loss='mse', optimizer='adam')
 
 # Generate model viszualization
-from keras.utils.visualize_util import plot
-plot(model, to_file='model.png', show_shapes=True)
+# from keras.utils.visualize_util import plot
+# plot(model, to_file='model.png', show_shapes=True)
 
 csv_logger = CSVLogger('training.log')
 
