@@ -27,6 +27,12 @@ My project includes the following files:
 * drive.py for driving the car in autonomous mode
 * model.h5 containing a trained convolution neural network 
 * README.md (this file) summarizing the results
+* Videos (YouTube links)
+    * Track 1 <br/>
+    [![Track 1](https://img.youtube.com/vi/PVLBKvBOblQ/0.jpg)](https://www.youtube.com/watch?v=PVLBKvBOblQ)
+    * Track 2 (Jungle)<br/>
+    [![Track 2](https://img.youtube.com/vi/xCddK6yXX2Q/0.jpg)](https://www.youtube.com/watch?v=xCddK6yXX2Q)
+
 
 #### 2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
@@ -66,7 +72,8 @@ My model consists of 5 convolutional layers and 3 fully connected layers (model.
 
 The model contains 2 dropout layers in order to reduce overfitting (model.py lines [152](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L152) and [159](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L159)). 
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 48-49). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (model.py [line 48](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L159)).
+The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
 
