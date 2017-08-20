@@ -5,11 +5,11 @@
 Overview
 ---
 In this project, I've built deep convolutional neural network to clone driving behavior. 
-[Project structure](https://github.com/alexei379/CarND-Behavioral-Cloning-P3) and [simultor](https://github.com/udacity/self-driving-car-sim) are provided by [Udacity - Self-Driving Car NanoDegree](http://www.udacity.com/drive).
+[Project structure](https://github.com/alexei379/CarND-Behavioral-Cloning-P3) and [simulator](https://github.com/udacity/self-driving-car-sim) are provided by [Udacity - Self-Driving Car NanoDegree](http://www.udacity.com/drive).
 
 The goals / steps of this project are the following:
 * Use the simulator to collect data of good driving behavior
-* Build, a convolution neural network in Keras that predicts steering angles from images
+* Build a convolution neural network in Keras that predicts steering angles from images
 * Train and validate the model with a training and validation set
 * Test that the model successfully drives around track one without leaving the road
 * Summarize the results with a written report
@@ -40,21 +40,7 @@ Using the Udacity provided simulator and my drive.py file, the car can be driven
 python drive.py model.h5
 ```
 
-I updated the drive.py file to feed YUV images to the model. Also I made the speed depent on the steering angle.
-```python
-max_speed = 27
-...
-def telemetry(sid, data):
-    if data:
-        ...
-        image_yuv = cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV)
-        steering_angle = float(model.predict(image_yuv[None, :, :, :], batch_size=1))
-        
-        target_speed = max_speed * (1 - abs(steering_angle) * 0.5)
-        controller.set_desired(target_speed)        
-        throttle = controller.update(float(speed))
-        ...
-```
+I updated the drive.py file to feed YUV images to the model(https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/1d5843ea3d1446f7a218e277ed5c09a2cb1a065b/drive.py#L65). Also I made the speed [depent on the steering angle](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/1d5843ea3d1446f7a218e277ed5c09a2cb1a065b/drive.py#L68) and make throttling a bit [more aggressive](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/1d5843ea3d1446f7a218e277ed5c09a2cb1a065b/drive.py#L48).
 
 #### 3. Submission code is usable and readable
 
@@ -137,15 +123,19 @@ My first attempt was to augment data set from "Track 1" so that the model would 
 | [vertical_shift](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L70) | pixels=15 <br/> ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/shift_15.8.png) |
 | Result | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/combined_alternations.png) |
 
-Then I repeated this process on track two in order to get more data points.
+Unfortunately, it was not enougth so I repeated this process on track two in order to get more data points. Another technique I used on "Track 2" to train the model in difficult turns was going through them in both directions several times:
+![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_3.gif)
+![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_4.gif)
 
-To augment the data set, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+After the collection process, the number of sample images I had was 34362 for "Track 1" and 36756 for "Track 2" . 
+I ended up having a lot of training data so I used gerarator (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed it into the model instead of loading everything in the memory.
 
-After the collection process, I had 34362 for "Track 1" and 36756 for "Track 2" number of data points. 
-I ended up having a lot of training data so I used gerarator (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model instead of loading everything in the memory. 
+I introduced an [alternations_per_sample = 5](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L175) factor, to generate multiple image alternations when configuring samples_per_epoch (model.py [line 175](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L175)). 
 
+This results in over 355000 images for training/validation set. I randomly shuffle the data set and put 20% into avalidation set (model.py [line 48](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L48)). Also I decided to randomly drop 70% of data to reduce the training time.
 
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 10 as evidenced by the loss plateauing.
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
+![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/train_val_loss.PNG)
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually tuning the learning rate wasn't necessary.
+I used an adam optimizer so that manually tuning the learning rate wasn't necessary.
