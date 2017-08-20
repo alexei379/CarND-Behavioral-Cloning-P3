@@ -126,22 +126,24 @@ After training the model and identifying the turns on "Track 1" where the model 
 ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_1.gif)
 ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_2.gif)
 
+My first attempt was to augment data set from "Track 1" so that the model would be able to generalize for "Track 2". I implemented the following augmentations, parameters for which were randomly chosed (model.py [lines 80-110](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L80)) and applied to the original images:
 
-
-I ended up having a lot of training data so I used gerarator  (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model. 
-
-
+| Augmentation | Sample Output |
+|:--------:|:------:|
+| Original | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/original.png) |
+| [flip](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L84) | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/flipped.png) |
+| [change_brightness](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L75) | factor=1.4 <br/> ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/lighter_1.4.png) |
+| [shadow](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L60) | top_col=32, bottom_col=219, side=0, factor=0.33 <br/>![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/shadow_0.33_0_32_219.png) |
+| [vertical_shift](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L70) | pixels=15 <br/> ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/shift_15.8.png) |
+| Result | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/combined_alternations.png) |
 
 Then I repeated this process on track two in order to get more data points.
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+To augment the data set, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
 
-![alt text][image6]
-![alt text][image7]
+After the collection process, I had 34362 for "Track 1" and 36756 for "Track 2" number of data points. 
+I ended up having a lot of training data so I used gerarator (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model instead of loading everything in the memory. 
 
-Etc ....
-
-After the collection process, I had 34362 for "Track 1" and 36756 for "Track 2" number of data points. I then preprocessed this data by ...
 
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
