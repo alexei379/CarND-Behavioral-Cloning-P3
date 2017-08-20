@@ -110,22 +110,27 @@ The final model architecture (model.py [lines 135-163](https://github.com/alexei
 | NVIDIA's architecture         		|     My architecture	        					| 
 |:---------------------:|:---------------------------------------------:| 
 | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/nvidia-cnn-architecture.png) | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/keras_model.png) |
-|
 
 #### 3. Creation of the Training Set & Training Process
+
+To capture good driving behavior, I used sample training images provided by Udacity for the "Track 1" as a starting point. The data contains views from 3 "cameras": center, left and right. Here are sample images of center lane driving:
+
+| Left | Center | Right | 
+|:----:|:------:|:-----:|
+| ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/left_2016_12_01_13_30_48_287.jpg) | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/center_2016_12_01_13_30_48_287.jpg) | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/right_2016_12_01_13_30_48_287.jpg) |
+
+I used left and right images as additional trainig data adjusting steering angle by 0.15 (model.py [lines 31-36](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L31)
+
+After training the model and identifying the turns on "Track 1" where the model was not steering well, I recorded additional data on going through the turns and recovering from the left side and right sides of the road back to center:
+
+![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_1.gif)
+![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/recovery_2.gif)
+
+
 
 I ended up having a lot of training data so I used gerarator  (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model. 
 
 
-To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
-
-![alt text][image2]
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
-
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
 
 Then I repeated this process on track two in order to get more data points.
 
