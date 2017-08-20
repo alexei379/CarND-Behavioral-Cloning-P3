@@ -66,7 +66,7 @@ The model.py file contains the code for training and saving the convolution neur
 
 My model architecture is similar to [NVIDIA's CNN architecture](http://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf).
 
-My model consists of 5 convolutional layers and 3 fully connected layers (model.py lines 37-63). RELU used as activation fuction to introduce nonlinearity. The input image is split into YUV planes and passed to the network, where first layers perform normalization and cropping.
+My model consists of 5 convolutional layers and 3 fully connected layers (model.py [lines 135-163](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L135)). RELU used as activation fuction to introduce nonlinearity. The input image is split into YUV planes and passed to the network, where first layers perform normalization and cropping.
 
 #### 2. Attempts to reduce overfitting in the model
 
@@ -95,6 +95,8 @@ To verify that a pipline works I implemented a single "Flatten" layer model and 
 
 After verifying that the pipline works, I moved on to implement the the NVIDIA's architecture. The trained model was able to drive around "Track 1", but had issues with couple of turns. To improve the driving behaviour I collected additional data by driving through these turns and doing "recovery" driving from the border to the center. Using this additional data I was able to train the model to drive around "Track 1".  
 
+Simulator outputs images of size 320x160. NVIDIA's architecture uses 200x66 images. I tried scaling image width down in model.py/drive.py, but the resulting model was making more zig-zags, so I decided to keep 320x160 image sizes.
+
 I tried this trained model on "Track 2" and it was not able to control the car appropriately. I thought that alternating data from "Track 1" by shifting, adding shadows, changing the brightnes, and addind dropout layers will help to generalize model to drive around "Track 2" without collecting the data from "Track 2". The trained model was able to drive better on "Track 2", but it still was not enougth to drive safely. 
 
 I ended up collecting driving data from "Track 2" and repeating the same process with fixing couple of turns that were not working correctly.
@@ -103,14 +105,14 @@ At the end of the process, the vehicle is able to drive autonomously around both
 
 #### 2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture (model.py [lines 135-163](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/f5dee4a10da2428d16013460d91b2a80bb7af0f3/model.py#L135)) consisted of normalization lambda and cropping layers, followed by three three convolutional layers with a 2×2 stride and a 5×5 kernel, dropout layer with keep probability = 0.5, followed by two non-strided convolutional layers with a 3×3 kernel size, followed by a set of fully connected layers with a single steering output. Visualization of the architecture below contains the layer sizes.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
-
-![alt text][image1]
+| NVIDIA's architecture         		|     My architecture	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/nvidia-cnn-architecture.png) | ![](https://raw.githubusercontent.com/alexei379/CarND-Behavioral-Cloning-P3/master/report_images/keras_model.png) |
+|
 
 #### 3. Creation of the Training Set & Training Process
-
 
 I ended up having a lot of training data so I used gerarator  (model.py [line 113](https://github.com/alexei379/CarND-Behavioral-Cloning-P3/blob/4b0481294dd795bca64a8b178efb2dd38a26665b/model.py#L113)) to feed training data into the model. 
 
